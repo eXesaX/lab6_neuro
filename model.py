@@ -1,12 +1,12 @@
 from pprint import pprint
 from random import randint, random, seed
-from math import exp, copysign
+from math import exp, copysign, sqrt
 
 seed(1)
 
 def generate_learn_set():
     learn_set = []
-    for i in range(100):
+    for i in range(500):
         x, y, z = randint(-50, 50), randint(-50, 50), randint(-50, 50)
 
         if x >= 0 and y >= 0 and z >= 0:
@@ -55,14 +55,15 @@ def sigmoid_derivative(x):
 
 def learn(learn_set):
     neurons = get_neurons()
-    for i in range(1000):
+    for i in range(10000):
         if i % 100 == 0:
             print(i / 10)
         for (x, y, z), q in learn_set:
             # run the net, gather outputs
             res = []
             for n in neurons:
-                NET = x * n[0] + y * n[1] + z * n[2]
+                vlen = sqrt(x*x+y*y+z*z)
+                NET = x/vlen * n[0] + y/vlen * n[1] + z/vlen * n[2]
                 if abs(NET) > 700:
                     NET = copysign(700, NET)
                 OUT = sigmoid(NET)
@@ -73,8 +74,6 @@ def learn(learn_set):
             for j, output in enumerate(q):
                 error = output - res[j]
                 errors.append(error)
-
-            pprint(errors)
 
             # write biggest error
             # recalc weights
@@ -91,7 +90,8 @@ def use(neurons, input_vec):
     x, y, z = input_vec
     res = []
     for n in neurons:
-        NET = x * n[0] + y * n[1] + z * n[2]
+        vlen = sqrt(x*x+y*y+z*z)
+        NET = x/vlen * n[0] + y/vlen * n[1] + z/vlen * n[2]
         if abs(NET) > 700:
             NET = copysign(700, NET)
         OUT = sigmoid(NET)
